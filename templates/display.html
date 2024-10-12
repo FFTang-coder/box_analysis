@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>票房预测结果分析</title>
+    <!-- 使用Bootstrap样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css">
+    <link rel="icon" href="{{ url_for('static', filename='ico.png') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        /* 表格样式 */
+        .table {
+            width: 80%;  /* 缩小表格整体大小 */
+            margin: auto;  /* 居中显示 */
+            table-layout: fixed;  /* 固定布局，避免列名换行 */
+        }
+        th {
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;  /* 确保列名不换行 */
+            overflow: visible;
+            text-overflow: ellipsis;  /* 超出内容显示省略号 */
+            font-size: 0.8rem;  /* 缩小字体大小 */
+        }
+        td {
+            text-align: center;
+            vertical-align: middle;
+            white-space: nowrap;  /* 确保列名不换行 */
+            overflow: hidden;
+            text-overflow: ellipsis;  /* 超出内容显示省略号 */
+            font-size: 0.8rem;  /* 缩小字体大小 */
+        }
+        /* 让表格在小屏幕设备上具有响应性 */
+        .table-responsive {
+            overflow-x: auto;
+        }
+        /* 缩小表单元素 */
+        select.form-select {
+            width: 150px;  /* 缩小选择框的宽度 */
+            font-size: 0.8rem;
+        }
+        /* 复选框样式 */
+        .column-selector {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .column-selector label {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 筛选器表单 -->
+    <form method="POST" class="mb-3 text-left">
+        <label for="date_filter" class="form-label d-inline">选择预测日期：</label>
+        <select name="date_filter" id="date_filter" class="form-select d-inline w-auto" onchange="this.form.submit()">
+            <option value="">显示所有</option>
+            {% for date in dates %}
+                <option value="{{ date }}" {% if date|string == request.form.get('date_filter') %} selected {% endif %}>
+                    {{ date }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+
+    <!-- 列选择器 -->
+    <div class="column-selector">
+        <!-- 复选框控制列显示 -->
+        {% for col in column_names %}
+            <label>
+                <input type="checkbox" class="toggle-column" checked data-column="{{ loop.index0 }}">
+                {{ col }}
+            </label>
+        {% endfor %}
+    </div>
+
+    <!-- 表格容器，具有响应性 -->
+    <div class="table-responsive">
+        <!-- 显示CSV表格 -->
+        {{ data|safe }}
+    </div>
+
+    <!-- 使用JavaScript来控制列的显示/隐藏 -->
+    <script>
+        document.querySelectorAll('.toggle-column').forEach(function(checkbox) {
+            checkbox.addEventListener('change', function() {
+                var columnIndex = this.getAttribute('data-column');
+                var table = document.querySelector('table');
+                var rows = table.querySelectorAll('tr');
+                rows.forEach(function(row) {
+                    var cells = row.querySelectorAll('th, td');
+                    if (cells[columnIndex]) {
+                        if (checkbox.checked) {
+                            cells[columnIndex].style.display = '';
+                        } else {
+                            cells[columnIndex].style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
