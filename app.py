@@ -30,9 +30,9 @@ def index():
 
     # 为r10列大于0.1的值添加标红样式
     def highlight_r10(val):
-        if val > 0.2:
+        if val >= 0.2:
             color = 'red'
-        elif val <= 0.1:
+        elif val < 0.1:
             color = 'black'
         else:
             color = 'blue'
@@ -44,7 +44,7 @@ def index():
     column_names = ['index'] + column_names
     # 转换为HTML，应用Bootstrap样式，并高亮r10列
     data_html = df_filtered.style.format(round_map) \
-        .applymap(highlight_r10, subset=['r10', '专业版r10']) \
+        .applymap(highlight_r10, subset=['预测误差', '专业版误差']) \
         .set_table_attributes('class="table table-striped table-hover"').to_html()
 
     return render_template('display.html', data=data_html, dates=unique_dates, column_names=column_names)
